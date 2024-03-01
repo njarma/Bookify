@@ -1,0 +1,48 @@
+version: '3.4'
+
+services:
+  bookify.api:
+    image: ${DOCKER_REGISTRY-}bookifyapi
+    container_name: Bookify.Api
+    build:
+      context: .
+      dockerfile: src/Bookify.Api/Dockerfile
+    networks:
+      - pg-network
+    depends_on:
+      - bookify-db
+
+  bookify-db:
+    image: postgres:latest
+    container_name: Bookify.Db
+    environment:
+      - POSTGRES_DB=bookify
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - pg-network
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  pgadmin4:
+    image: dpage/pgadmin4:latest
+    container_name: Bookify.PgAdmin
+    restart: always
+    ports:
+      - "5002:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: nicolasjarma@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: a12345678
+    networks:
+      - pg-network
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    depends_on:
+      - bookify-db
+networks:
+  pg-network:
+
+volumes:
+  database:
+  pgadmin:
